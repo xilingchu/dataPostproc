@@ -1,4 +1,4 @@
-from outputh5.utils import _avg, _readHDF, _exist_file
+from dataPostproc.utils import _avg, _readHDF, _exist_file
 from pathlib import Path
 from functools import cmp_to_key
 import h5py

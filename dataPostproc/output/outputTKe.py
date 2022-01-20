@@ -1,5 +1,5 @@
-from outputh5.utils import _defTKEName
-from outputh5.output.outputBase import varDict
+from dataPostproc.utils import _defTKEName
+from dataPostproc.output.outputBase import varDict
 
 #----------------------------------------#
 #--------- The Sub Class Of Tke ---------#

@@ -1,4 +1,4 @@
-from outputh5.utils import _readHDF
+from dataPostproc.utils import _readHDF
 from .outputBase import varDict
 
 #----------------------------------------#
