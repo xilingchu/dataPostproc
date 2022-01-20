@@ -5,7 +5,7 @@ from dataPostproc.output import outputData, outputData_tke
 from argparse import ArgumentParser as ap
 
 def main():
-    dataPostproc  = ap(prog='dataPostproc', description='API of fileEx')
+    dataPostproc  = ap(prog='dataPostproc', description='API of dataPostproc')
     _subparses    = dataPostproc.add_subparsers(help='sub-command help')
     #-----------------------------------------#
     #------------- Output Method -------------#
