@@ -10,7 +10,7 @@ def main():
     #-----------------------------------------#
     #------------- Output Method -------------#
     #-----------------------------------------#
-    _output       = _subparses.add_parser('output', help='Add new file in the document.')
+    _output       = _subparses.add_parser('output', help='Output the data in a dat file.')
     _output.add_argument(
                 '-f', '--file',
                 required = True,
