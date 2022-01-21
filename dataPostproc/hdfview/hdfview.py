@@ -72,11 +72,12 @@ class hdfView(abcH5):
         def _dumpAttr(_moo, _var):
             _ret = ET.SubElement(_moo, "Attribute", Name=_var, AttributeType="Scalar", Center="Node")
             _shape        = self._file[_var].shape
-            # I think that is a bug in python, I never change anything but the blockx will have error!
-            _blockx       = self._blockx
-            _blockx[0]   += self._per[_var][1]; _blockx[2]   += self._per[_var][1]
-            _blocky       = self._blocky
-            _blocky[0]   += self._per[_var][0]; _blocky[2]   += self._per[_var][0]
+            _blockx       = self._blockx[:]
+            _blockx[0]    = _blockx[0] + self._per[_var][1]
+            _blockx[2]    = _blockx[2] + self._per[_var][1]
+            _blocky       = self._blocky[:]
+            _blocky[0]   += self._per[_var][0]
+            _blocky[2]   += self._per[_var][0]
             _hyperx       = ceil((self._blockx[2] - self._blockx[0] + 1)/self._blockx[1])
             _hypery       = ceil((self._blocky[2] - self._blocky[0] + 1)/self._blocky[1])
             _hyperz       = ceil((self._blockz[2] - self._blockz[0] + 1)/self._blockz[1])
