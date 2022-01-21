@@ -9,6 +9,6 @@ setup(
         author='Xi Lingchu',
         author_email='xilingchu@163.com',
         license='MIT',
-        packages=['dataPostproc', 'dataPostproc.output', 'dataPostproc.utils'],
+        packages=['dataPostproc', 'dataPostproc.output', 'dataPostproc.utils', 'dataPostproc.hdfview'],
         scripts=['scripts/dataPostproc']
         )
