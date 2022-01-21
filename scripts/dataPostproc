@@ -37,6 +37,7 @@ def main():
                 help='Select hyberslab of in x-direction',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
     _output.add_argument(
@@ -45,6 +46,7 @@ def main():
                 help='Select hyberslab of in y-direction.',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
     _output.add_argument(
@@ -53,6 +55,7 @@ def main():
                 help='Select hyberslab of in z-direction.',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
     _output.add_argument(
@@ -102,6 +105,7 @@ def main():
                 help='Select hyberslab of in x-direction',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
     _hdfview.add_argument(
@@ -110,6 +114,7 @@ def main():
                 help='Select hyberslab of in y-direction.',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
     _hdfview.add_argument(
@@ -118,6 +123,7 @@ def main():
                 help='Select hyberslab of in z-direction.',
                 type=int,
                 default=None,
+                nargs='+',                     # N args
                 metavar='Int'
             )
 

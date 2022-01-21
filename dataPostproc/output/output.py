@@ -1,5 +1,5 @@
 from dataPostproc.utils import _readHDF
-from .outputBase import varDict
+from dataPostproc.output.outputBase import varDict
 
 #----------------------------------------#
 #--------- The Main Output Code ---------#
@@ -21,7 +21,6 @@ class outputData(varDict):
     '''
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.nu = _readHDF(_fn=self.__fn__, _var='nu')
 
     def normalize(self, _fn=None):
         # For safe
@@ -29,8 +28,8 @@ class outputData(varDict):
 
         # Reorder the dict
         self._order_list = list(self.keys())
-        self._order_list.insert(1, '{}plus'.format(self.__dire__[0]))
-        _temp = self[self.__dire__]
+        self._order_list.insert(1, '{}plus'.format(self._dire))
+        _temp = self[self._dire]
 
         # Normalize the variable
         _nor = self.nu/self.utau
@@ -47,11 +46,10 @@ class outputData(varDict):
                     elif _str in ['x', 'y', 'z']:
                         self[_key] *= _nor
 
-        self['{}plus'.format(self.__dire__[0])] = self[self.__dire__]
-        self[self.__dire__] = _temp
+        self['{}plus'.format(self._dire[0])] = self[self._dire]
+        self[self._dire] = _temp
 
-if __name__ == '__main__':
-    a = outputData(_fn='/home/xlc/DATA/temp_avg/avg_per.h5', _dire='x', _list=['uu', 'uz'], _blockz = [0,1,1,1])
+if __name__ =='__main__':
+    a = outputData(_fn='~/DATA/temp_avg/avg_dire.h5', _list=['uu', 'vv'], _dire='z')
     a.normalize()
-    a._output('a.dat', a._order_list)
-    print(a.uz)
+    a._output('test.dat')

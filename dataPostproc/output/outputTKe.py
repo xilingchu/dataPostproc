@@ -37,8 +37,8 @@ class outputData_tke(varDict):
 
         # Reorder the dict
         self._order_list = list(self.keys())
-        self._order_list.insert(1, '{}plus'.format(self.__dire__[0]))
-        _temp = self[self.__dire__]
+        self._order_list.insert(1, '{}plus'.format(self._dire[0]))
+        _temp = self[self._dire]
 
         # Normalize the variable
         _nor = self.nu/self.utau**4
@@ -48,8 +48,8 @@ class outputData_tke(varDict):
             else:
                 self[_key] *= _nor
 
-        self['{}plus'.format(self.__dire__[0])] = self[self.__dire__]
-        self[self.__dire__] = _temp
+        self['{}plus'.format(self._dire[0])] = self[self._dire]
+        self[self._dire] = _temp
 
     def outputTke_all(self):
         self.tkeall = self
@@ -74,7 +74,7 @@ class outputData_tke(varDict):
                 self.tkeall['balance']    += val
             if _key[0:9] == 'visc_diss':
                 self.tkeall['visc_diss'] += val
-                self.tkeall['balance']   += val
+                self.tkeall['balance']   -= val
             if _key[0:12] == 'press_strain':
                 self.tkeall['press_strain'] += val
                 self.tkeall['balance']      += val
@@ -84,5 +84,6 @@ class outputData_tke(varDict):
         return self.tkeall
 
 if __name__ == '__main__':
-    filename = '~/DATA/temp_avg/TKE_uu.h5'
+    filename = '~/DATA/temp_avg/TKE_all_uu.h5'
     a = outputData_tke(_fn=filename, _dire='z', _var='uu').outputTke_all()
+    a._output('test.dat')
