@@ -1,2 +1,5 @@
 *.pyc
 *.dat
+build*
+dataPostproc.egg-info*
+dist*
