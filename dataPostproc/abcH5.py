@@ -109,7 +109,7 @@ class abcH5(ABC):
         self._per  = {}
         for _item in self._list:
             _shape = self._file[_item].shape
-            self._per[_item] = [int(_shape[1] != self._sy), int(_shape[2] != self._sx)]
+            self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
 
         @abstractmethod
         def _output(self, _fn:str) -> None:

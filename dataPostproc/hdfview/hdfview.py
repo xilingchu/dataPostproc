@@ -19,17 +19,17 @@ class hdfView(abcH5):
         '''
         super(hdfView, self).__init__(**kwargs)
         if self._blockx is None:
-            self._blockx = [0, 1, self._sx-1]
+            self._blockx = [0, 1, self._sx]
         else:
             if len(self._blockx) != 3:
                 raise Exception('ERROR: The length of blockx should be 3!')
         if self._blocky is None:
-            self._blocky = [0, 1, self._sy-1]
+            self._blocky = [0, 1, self._sy]
         else:
             if len(self._blocky) != 3:
                 raise Exception('ERROR: The length of blocky should be 3!')
         if self._blockz is None:
-            self._blockz = [0, 1, self._sz-1]
+            self._blockz = [0, 1, self._sz]
         else:
             if len(self._blockz) != 3:
                 raise Exception('ERROR: The length of blockz should be 3!')
@@ -38,9 +38,9 @@ class hdfView(abcH5):
         if '.xdmf' not in _fn:
             _fn += '.xdmf'
 
-        _hyperx       = ceil((self._blockx[2] - self._blockx[0] + 1)/self._blockx[1])
-        _hypery       = ceil((self._blocky[2] - self._blocky[0] + 1)/self._blocky[1])
-        _hyperz       = ceil((self._blockz[2] - self._blockz[0] + 1)/self._blockz[1])
+        _hyperx       = self._blockx[2]
+        _hypery       = self._blocky[2]
+        _hyperz       = self._blockz[2]
 
         def _dumpItem(_moo, **kwargs):
             if 'text' in kwargs.keys():
@@ -122,11 +122,9 @@ class hdfView(abcH5):
             _ret = ET.SubElement(_moo, "Attribute", Name=_var, AttributeType="Scalar", Center="Node")
             _shape        = self._file[_var].shape
             _blockx       = self._blockx[:]
-            _blockx[0]    = _blockx[0] + self._per[_var][1]
-            _blockx[2]    = _blockx[2] + self._per[_var][1]
+            _blockx[0]   += self._per[_var][1]
             _blocky       = self._blocky[:]
             _blocky[0]   += self._per[_var][0]
-            _blocky[2]   += self._per[_var][0]
             _hyper = _dumpItem(_ret, ItemType="HyperSlab", Dimensions="{} {} {}".format(_hyperz, _hypery, _hyperx))
             _dumpItem(_hyper,
                     text = ''' 
