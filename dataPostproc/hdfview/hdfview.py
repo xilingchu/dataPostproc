@@ -38,6 +38,10 @@ class hdfView(abcH5):
         if '.xdmf' not in _fn:
             _fn += '.xdmf'
 
+        _hyperx       = ceil((self._blockx[2] - self._blockx[0] + 1)/self._blockx[1])
+        _hypery       = ceil((self._blocky[2] - self._blocky[0] + 1)/self._blocky[1])
+        _hyperz       = ceil((self._blockz[2] - self._blockz[0] + 1)/self._blockz[1])
+
         def _dumpItem(_moo, **kwargs):
             if 'text' in kwargs.keys():
                 text = kwargs.pop('text')
@@ -49,19 +53,64 @@ class hdfView(abcH5):
 
         def _dumpGeo(_moo):
             _ret = ET.SubElement(_moo, 'Geometry', GeometryType='VXVYVZ')
-            _dumpItem(_ret,
+            _hyper = _dumpItem(_ret, 
+                    ItemType='HyperSlab',
+                    Dimensions='%i'%_hyperx
+                    )
+            _dumpItem(_hyper,
+                    text = ''' 
+                    {} 
+                    {}
+                    {}'''.format(
+                    self._blockx[0],
+                    self._blockx[1],
+                    self._blockx[2]),
+                    Dimensions='3 1',
+                    Format = 'XML'
+                    )
+            _dumpItem(_hyper,
                     text= str(self._fn)+':/'+self._varx,
                     Dimensions=str(self._sx),
                     Precision="8",
                     Format="HDF"
                     )
-            _dumpItem(_ret,
+            _hyper = _dumpItem(_ret, 
+                    ItemType='HyperSlab',
+                    Dimensions='%i'%_hypery
+                    )
+            _dumpItem(_hyper,
+                    text = ''' 
+                    {} 
+                    {}
+                    {}'''.format(
+                    self._blocky[0],
+                    self._blocky[1],
+                    self._blocky[2]),
+                    Dimensions='3 1',
+                    Format = 'XML'
+                    )
+            _dumpItem(_hyper,
                     text= str(self._fn)+':/'+self._vary,
                     Dimensions=str(self._sy),
                     Precision="8",
                     Format="HDF"
                     )
-            _dumpItem(_ret,
+            _hyper = _dumpItem(_ret, 
+                    ItemType='HyperSlab',
+                    Dimensions='%i'%_hyperz
+                    )
+            _dumpItem(_hyper,
+                    text = ''' 
+                    {} 
+                    {}
+                    {}'''.format(
+                    self._blockz[0],
+                    self._blockz[1],
+                    self._blockz[2]),
+                    Dimensions='3 1',
+                    Format = 'XML'
+                    )
+            _dumpItem(_hyper,
                     text= str(self._fn)+':/'+self._varz,
                     Dimensions=str(self._sz),
                     Precision="8",
@@ -78,9 +127,6 @@ class hdfView(abcH5):
             _blocky       = self._blocky[:]
             _blocky[0]   += self._per[_var][0]
             _blocky[2]   += self._per[_var][0]
-            _hyperx       = ceil((self._blockx[2] - self._blockx[0] + 1)/self._blockx[1])
-            _hypery       = ceil((self._blocky[2] - self._blocky[0] + 1)/self._blocky[1])
-            _hyperz       = ceil((self._blockz[2] - self._blockz[0] + 1)/self._blockz[1])
             _hyper = _dumpItem(_ret, ItemType="HyperSlab", Dimensions="{} {} {}".format(_hyperz, _hypery, _hyperx))
             _dumpItem(_hyper,
                     text = ''' 
@@ -109,7 +155,7 @@ class hdfView(abcH5):
         ET.SubElement(_grid,
            "Topology",
            TopologyType="3DRectMesh",
-           NumberOfElements="{} {} {}".format(self._sz, self._sy, self._sx)
+           NumberOfElements="{} {} {}".format(_hyperz, _hypery, _hyperx)
            )
         # Geometry
         _dumpGeo(_grid)
