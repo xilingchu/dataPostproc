@@ -33,7 +33,7 @@ class outputData_tke(varDict):
         
     def normalize(self, _fn=None):
         # For safe
-        self.utau = self._getutau(_fn)
+        # self.utau = self._getutau(_fn)
 
         # Reorder the dict
         self._order_list = list(self.keys())

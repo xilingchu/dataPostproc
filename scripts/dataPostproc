@@ -76,6 +76,11 @@ def main():
                 default=False,
                 help='Calculate the TKE.',
             )
+    _output.add_argument(
+                '--uout',
+                default=None,
+                help='The output velocity. ',
+            )
     #----------------------------------------#
     #------------ Hdfview Method ------------#
     #----------------------------------------#
@@ -133,6 +138,7 @@ def main():
     #----------------------------------------#
     _fn      = _main_args.file
     _of      = _main_args.output
+    _fno     = _main_args.uout
     _varlist = _main_args.variables
     _blockx  = _main_args.blockx
     _blocky  = _main_args.blocky
@@ -142,21 +148,20 @@ def main():
         if _main_args.tke:
             for _var in _varlist:
                 _filename = _fn + '_' + _var + '.h5'
-                _op = outputData_tke(_fn = _filename, _dire = _dire, _var = _var, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx)
+                _op = outputData_tke(_fn = _filename, _dire = _dire, _var = _var, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx, _uout=_fno)
                 if _main_args.normalize:
                     _op.normalize()
                 _sop = _op.outputTke_all()
                 _op._output(_of+'_'+_var+'.dat')
                 _sop._output(_of+'_all_'+_var+'.dat')
         else:
-            _op = outputData(_fn=_fn, _dire=_dire, _list=_varlist, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx)
+            _op = outputData(_fn=_fn, _dire=_dire, _list=_varlist, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx, _fout=_fno)
             if _main_args.normalize:
                 _op.normalize()
             _op._output(_of)
     if 'hdfview' in sys.argv:
         _hv = hdfView(_fn = _fn, _list = _varlist, _blockx = _blockx, _blocky = _blocky, _blockz = _blockz)
         _hv._output(_of)
-
 
 if __name__ == '__main__':
     main()

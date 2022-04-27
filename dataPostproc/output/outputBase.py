@@ -20,7 +20,6 @@ class varDict(abcH5, dict):
     def __init__(self, **kwargs):
         # Determine the direction of the array
         super(varDict, self).__init__(**kwargs)
-        self.nu = _readHDF(_fn=self._fn, _var='nu')
         kwargs.pop('_fn')
         kwargs.pop('_dire')
         kwargs.pop('_list')
@@ -29,21 +28,28 @@ class varDict(abcH5, dict):
         if self._blockx is None:
             self._blockx = [0, 1, self._sx, 1]
         else:
-            kwargs.pop('_blockx')
             if len(self._blockx) != 4:
                 raise Exception('ERROR: The length of blockx should be 4!')
+        kwargs.pop('_blockx')
+
         if self._blocky is None:
             self._blocky = [0, 1, self._sy, 1]
         else:
-            kwargs.pop('_blocky')
             if len(self._blocky) != 4:
                 raise Exception('ERROR: The length of blocky should be 4!')
+        kwargs.pop('_blocky')
+
         if self._blockz is None:
             self._blockz = [0, 1, self._sz, 1]
         else:
-            kwargs.pop('_blockz')
             if len(self._blockz) != 4:
                 raise Exception('ERROR: The length of blockz should be 4!')
+        kwargs.pop('_blockz')
+        
+        # Get the nu and utau
+        self.nu   = _readHDF(_fn=self._fn, _var='nu')
+        self.utau = self._getutau(kwargs['_uout']) 
+        kwargs.pop('_uout')
 
         if self._dire is None:
             raise Exception('ERROR: In this class we should include _dire.')
@@ -75,7 +81,8 @@ class varDict(abcH5, dict):
         else:
             _fn = Path(_fn)
         try:
-            _shape = self._file['u'].shape
+            _file  = h5py.File(_fn, 'r')
+            _shape = _file['u'].shape
             _per   = [int(_shape[1] != self._sy), int(_shape[2] != self._sx)]
             _blockx       = self._blockx[:]
             _blockx[0]   += _per[1]
@@ -130,7 +137,7 @@ class varDict(abcH5, dict):
             _head_str2 += '{:>14s}'.format(var_str)
         _head_str1 += '\n'
         _head_str2 += '\n'
-        _title_head = '{:40s}'.format('Statistics of the data along with {}'.format(self._dire[0]))+'\n'
+        _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau/self.nu))+'\n'
         _spl_head = 80*'-'+'\n'
         with open(_filename, 'w') as f:
             f.write(_title_head+_head_str1+_head_str2+_spl_head*2)
