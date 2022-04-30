@@ -22,16 +22,14 @@ class outputData(varDict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def normalize(self, _fn=None):
-        # For safe
-        self.utau = self._getutau(_fn)
-
+    def normalize(self):
         # Reorder the dict
         self._order_list = list(self.keys())
         self._order_list.insert(1, '{}plus'.format(self._dire))
         _temp = self[self._dire]
 
         # Normalize the variable
+        # utau may be a list.
         _nor = self.nu/self.utau
         _tau = 1/self.utau/self.utau
         for _key in self.keys():

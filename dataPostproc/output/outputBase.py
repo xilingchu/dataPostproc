@@ -2,6 +2,7 @@ from dataPostproc.utils import _avg, _readHDF, _exist_file
 from dataPostproc.abcH5 import abcH5
 from pathlib import Path
 from functools import cmp_to_key
+import numpy as np
 import h5py
 import math
 
@@ -36,7 +37,7 @@ class varDict(abcH5, dict):
             self._blocky = [0, 1, self._sy, 1]
         else:
             if len(self._blocky) != 4:
-                raise Exception('ERROR: The length of blocky should be 4!')
+                raise Exception('ERROR: The length of block_y should be 4!')
         kwargs.pop('_blocky')
 
         if self._blockz is None:
@@ -48,8 +49,14 @@ class varDict(abcH5, dict):
         
         # Get the nu and utau
         self.nu   = _readHDF(_fn=self._fn, _var='nu')
-        self.utau = self._getutau(kwargs['_uout']) 
-        kwargs.pop('_uout')
+        if '_uout' in kwargs.keys():
+            if kwargs['_uout'] == None:
+                self.utau = self._getutau(self._fn) 
+            else:
+                self.utau = self._getutau(kwargs['_uout']) 
+            kwargs.pop('_uout')
+        else:
+            self.utau = self._getutau(self._fn) 
 
         if self._dire is None:
             raise Exception('ERROR: In this class we should include _dire.')
@@ -58,12 +65,21 @@ class varDict(abcH5, dict):
 
         # Make the class to an array
         for _var in self._list:
-            _blockx       = self._blockx[:]
-            _blockx[0]   += self._per[_var][1]
-            _blocky       = self._blocky[:]
-            _blocky[0]   += self._per[_var][0]
-            kwargs[_var] = _readHDF(_fn=self._fn, _var=_var, _blockz = self._blockz, _blocky = _blocky, _blockx = _blockx)
-            kwargs[_var] = _avg.nor_all(kwargs[_var], self._dire[0])
+            if _var not in self.funlib:
+                _blockx       = self._blockx[:]
+                _blockx[0]   += self._per[_var][1]
+                _blocky       = self._blocky[:]
+                _blocky[0]   += self._per[_var][0]
+                kwargs[_var] = _readHDF(_fn=self._fn, _var=_var,
+                                        _blockz = self._blockz,
+                                        _blocky = _blocky,
+                                        _blockx = _blockx)
+                kwargs[_var] = _avg.nor_all(kwargs[_var], self._dire[0])
+
+            # Cf
+            elif _var in self.funlib:
+                if _var == 'cf':
+                    kwargs[_var] = self.utau*self.utau*2
 
         kwargs[self._dire] = _readHDF(_fn=self._fn, _var=self._dire, _blockz=_block, _blocky=None, _blockx=None)
 
@@ -83,7 +99,7 @@ class varDict(abcH5, dict):
         try:
             _file  = h5py.File(_fn, 'r')
             _shape = _file['u'].shape
-            _per   = [int(_shape[1] != self._sy), int(_shape[2] != self._sx)]
+            _per   = [int(_shape[1] == self._sy+2), int(_shape[2] == self._sx+2)]
             _blockx       = self._blockx[:]
             _blockx[0]   += _per[1]
             _blocky       = self._blocky[:]
@@ -94,12 +110,16 @@ class varDict(abcH5, dict):
             raise FileExistsError('The variable u does not exist in the {}.'.format(_fn))
         u1   = _avg.nor_all(u, self._dire[0])
         tau  = self.nu*u1/z1
+        # Check zero
+        for i in range(len(tau)):
+            if tau[i] < 0:
+                tau[i] = 0
+        tau  = map(math.sqrt, tau)
+        tau = list(tau)
         if len(tau) == 1:
-            return math.sqrt(tau)
+            return tau[0]
         else:
-            for _tau in tau:
-                _tau = math.sqrt(_tau)
-            return tau
+            return np.array(tau)
 
     def _output(self, _fn):
         # Compare rules 
@@ -137,7 +157,7 @@ class varDict(abcH5, dict):
             _head_str2 += '{:>14s}'.format(var_str)
         _head_str1 += '\n'
         _head_str2 += '\n'
-        _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau/self.nu))+'\n'
+        _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], list(self.utau)[0]/self.nu))+'\n'
         _spl_head = 80*'-'+'\n'
         with open(_filename, 'w') as f:
             f.write(_title_head+_head_str1+_head_str2+_spl_head*2)

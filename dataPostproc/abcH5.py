@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 import h5py
 
+
 class abcH5(ABC):
     def __init__(self, **kwargs):
         def getVarlist(_fn=''):
@@ -14,6 +15,8 @@ class abcH5(ABC):
                 if _list.count(_item) > 1:
                     _list.pop(_item)
             return _list
+
+        self.funlib = ['cf']
 
         if '_fn' not in kwargs.keys() or '_list' not in kwargs.keys():
             raise Exception('You must have _fn or _dire in this class. Please recheck the code!')
@@ -64,7 +67,7 @@ class abcH5(ABC):
         _list = _del_repeated(_list)
         kwargs.pop('_list')
         for _item in _list:
-            if _item not in self._varlist:
+            if _item not in self._varlist and _item not in self.funlib:
                 print('Warning: Please check the variable {}, which is not in the list!'.format(_item))
                 print(self._varlist)
                 _list.remove(_item)
@@ -108,8 +111,13 @@ class abcH5(ABC):
 
         self._per  = {}
         for _item in self._list:
-            _shape = self._file[_item].shape
-            self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
+            if _item not in self.funlib:
+                _shape = self._file[_item].shape
+                self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
+            else:
+                if _item == 'cf':
+                    _shape = self._file['u'].shape
+                    self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
 
         @abstractmethod
         def _output(self, _fn:str) -> None:
