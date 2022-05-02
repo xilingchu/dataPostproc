@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from dataPostproc.utils.toolbox import _funlib
 import h5py
 
 
@@ -16,7 +17,7 @@ class abcH5(ABC):
                     _list.pop(_item)
             return _list
 
-        self.funlib = ['cf']
+        self._funlib  = _funlib()
 
         if '_fn' not in kwargs.keys() or '_list' not in kwargs.keys():
             raise Exception('You must have _fn or _dire in this class. Please recheck the code!')
@@ -67,7 +68,7 @@ class abcH5(ABC):
         _list = _del_repeated(_list)
         kwargs.pop('_list')
         for _item in _list:
-            if _item not in self._varlist and _item not in self.funlib:
+            if _item not in self._varlist and _item not in self._funlib._funlist:
                 print('Warning: Please check the variable {}, which is not in the list!'.format(_item))
                 print(self._varlist)
                 _list.remove(_item)
@@ -111,13 +112,13 @@ class abcH5(ABC):
 
         self._per  = {}
         for _item in self._list:
-            if _item not in self.funlib:
+            if _item not in self._funlib._funlist:
                 _shape = self._file[_item].shape
                 self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
             else:
-                if _item == 'cf':
-                    _shape = self._file['u'].shape
-                    self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
+                _var   = self._funlib._perdict[_item]
+                _shape = self._file[_var].shape
+                self._per[_item] = [int(_shape[1] == self._sy + 2), int(_shape[2] == self._sx + 2)]
 
         @abstractmethod
         def _output(self, _fn:str) -> None:

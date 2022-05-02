@@ -87,3 +87,18 @@ class _avg(object):
         _num2 = _list.index(_list[_list.index(_dire)-1])
         return cls.avg2d(cls.avg3d(var, _num1+1), _num2+1)
 
+#-----------------------------------------#
+#--------- Funlib In X Direction ---------#
+#-----------------------------------------#
+class _funlib(object):
+    '''
+    Funlib in the x direction.
+    '''
+    def __init__(self):
+        self._funlist = ['cf', 'retau']
+        self._perdict = {'cf': 'u'}
+        self._indict  = {'cf': ['utau']}
+
+    @classmethod
+    def cf(cls, utau):
+        return 2*utau*utau

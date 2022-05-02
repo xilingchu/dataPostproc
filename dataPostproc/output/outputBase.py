@@ -65,7 +65,7 @@ class varDict(abcH5, dict):
 
         # Make the class to an array
         for _var in self._list:
-            if _var not in self.funlib:
+            if _var not in self._funlib._funlist:
                 _blockx       = self._blockx[:]
                 _blockx[0]   += self._per[_var][1]
                 _blocky       = self._blocky[:]
@@ -77,9 +77,22 @@ class varDict(abcH5, dict):
                 kwargs[_var] = _avg.nor_all(kwargs[_var], self._dire[0])
 
             # Cf
-            elif _var in self.funlib:
-                if _var == 'cf':
-                    kwargs[_var] = self.utau*self.utau*2
+            else:
+                _inlist = self._funlib._indict[_var]
+                args = []
+                for _in in _inlist:
+                    if hasattr(self, _in):
+                        args.append(getattr(self, _in))
+                    else:
+                        _blockx       = self._blockx[:]
+                        _blockx[0]   += self._per[_var][1]
+                        _blocky       = self._blocky[:]
+                        _blocky[0]   += self._per[_var][0]
+                        args.append(_readHDF(_fn=self._fn, _var=_var, _blockz = self._blockz, _blocky = _blocky, _blockx = _blockx))
+                fun_var = getattr(self._funlib, _var)
+                kwargs[_var] = fun_var(*args)
+
+
 
         kwargs[self._dire] = _readHDF(_fn=self._fn, _var=self._dire, _blockz=_block, _blocky=None, _blockx=None)
 
