@@ -128,7 +128,7 @@ class varDict(abcH5, dict):
             if tau[i] < 0:
                 tau[i] = 0
         tau  = map(math.sqrt, tau)
-        tau = list(tau)
+        tau  = list(tau)
         if len(tau) == 1:
             return tau[0]
         else:
@@ -170,7 +170,10 @@ class varDict(abcH5, dict):
             _head_str2 += '{:>14s}'.format(var_str)
         _head_str1 += '\n'
         _head_str2 += '\n'
-        _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], list(self.utau)[0]/self.nu))+'\n'
+        if type(self.utau) == type(1.0):
+            _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau/self.nu))+'\n'
+        else:
+            _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau[0]/self.nu))+'\n'
         _spl_head = 80*'-'+'\n'
         with open(_filename, 'w') as f:
             f.write(_title_head+_head_str1+_head_str2+_spl_head*2)
