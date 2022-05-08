@@ -6,6 +6,13 @@ import numpy as np
 import h5py
 import math
 
+def sqrt_h0(var):
+    try:
+        var = math.sqrt(var)
+    except:
+        var = 0
+    return var
+    
 #----- Basic Class -----#
 # For build a var dictionary.
 class varDict(abcH5, dict):
@@ -15,7 +22,7 @@ class varDict(abcH5, dict):
         _fn  :    The file name of the hdf5 file.
         _dire: This variable define the direction of the x, y or z
     -- Function:
-        getutau: This function can get utau in the x-direction.
+        gettau: This function can get tau in the x-direction.
         output : Output the data in a text file.
     '''
     def __init__(self, **kwargs):
@@ -47,16 +54,23 @@ class varDict(abcH5, dict):
                 raise Exception('ERROR: The length of blockz should be 4!')
         kwargs.pop('_blockz')
         
-        # Get the nu and utau
+        # Get the nu and tau
         self.nu   = _readHDF(_fn=self._fn, _var='nu')
         if '_uout' in kwargs.keys():
             if kwargs['_uout'] == None:
-                self.utau = self._getutau(self._fn) 
+                self.tau = self._gettau(self._fn) 
             else:
-                self.utau = self._getutau(kwargs['_uout']) 
+                self.tau = self._gettau(kwargs['_uout']) 
             kwargs.pop('_uout')
         else:
-            self.utau = self._getutau(self._fn) 
+            self.tau = self._gettau(self._fn) 
+
+        # Get the utau
+        # Check zero
+        self.utau = np.zeros(len(self.tau))
+        for i in range(len(self.tau)):
+            self.utau[i] = sqrt_h0(self.tau[i])
+        
 
         if self._dire is None:
             raise Exception('ERROR: In this class we should include _dire.')
@@ -104,7 +118,7 @@ class varDict(abcH5, dict):
     #     except KeyError:
     #         raise AttributeError('The key {} doesn\'t exist in {}'.format(key, self.__class__.__name__))
 
-    def _getutau(self, _fn=None):
+    def _gettau(self, _fn=None):
         if _fn is None:
             _fn = self._fn
         else:
@@ -123,16 +137,7 @@ class varDict(abcH5, dict):
             raise FileExistsError('The variable u does not exist in the {}.'.format(_fn))
         u1   = _avg.nor_all(u, self._dire[0])
         tau  = self.nu*u1/z1
-        # Check zero
-        for i in range(len(tau)):
-            if tau[i] < 0:
-                tau[i] = 0
-        tau  = map(math.sqrt, tau)
-        tau  = list(tau)
-        if len(tau) == 1:
-            return tau[0]
-        else:
-            return np.array(tau)
+        return np.array(tau)
 
     def _output(self, _fn):
         # Compare rules 

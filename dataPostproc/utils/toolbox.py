@@ -97,8 +97,8 @@ class _funlib(object):
     def __init__(self):
         self._funlist = ['cf', 'retau']
         self._perdict = {'cf': 'u'}
-        self._indict  = {'cf': ['utau']}
+        self._indict  = {'cf': ['tau']}
 
     @classmethod
-    def cf(cls, utau):
-        return 2*utau*utau
+    def cf(cls, tau):
+        return 2*tau

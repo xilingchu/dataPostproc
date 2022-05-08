@@ -31,7 +31,7 @@ class outputData(varDict):
         # Normalize the variable
         # utau may be a list.
         _nor = self.nu/self.utau
-        _tau = 1/self.utau/self.utau
+        _tau = 1/self.tau
         for _key in self.keys():
             if _key[0] in ['x', 'y', 'z']:
                 self[_key] = self[_key]*self.utau/self.nu
