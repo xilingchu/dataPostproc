@@ -138,12 +138,12 @@ def main():
     #----------------------------------------#
     _fn      = _main_args.file
     _of      = _main_args.output
-    _fno     = _main_args.uout
     _varlist = _main_args.variables
     _blockx  = _main_args.blockx
     _blocky  = _main_args.blocky
     _blockz  = _main_args.blockz
     if 'output' in sys.argv:
+        _fno     = _main_args.uout
         _dire    = _main_args.dire
         if _main_args.tke:
             for _var in _varlist:
@@ -151,9 +151,9 @@ def main():
                 _op = outputData_tke(_fn = _filename, _dire = _dire, _var = _var, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx, _uout=_fno)
                 if _main_args.normalize:
                     _op.normalize()
+                _op._output(_of+'_all_'+_var+'.dat')
                 _sop = _op.outputTke_all()
-                _op._output(_of+'_'+_var+'.dat')
-                _sop._output(_of+'_all_'+_var+'.dat')
+                _sop._output(_of+'_'+_var+'.dat')
         else:
             _op = outputData(_fn=_fn, _dire=_dire, _list=_varlist, _blockz = _blockz, _blocky = _blocky, _blockx = _blockx, _uout=_fno)
             if _main_args.normalize:
