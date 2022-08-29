@@ -6,6 +6,14 @@ import h5py
 
 class abcH5(ABC):
     def __init__(self, **kwargs):
+
+        if '_dire' not in kwargs.keys():
+            self._dire = 'x'
+
+        # Direction
+        _dire = kwargs['_dire']
+        kwargs.pop('_dire')
+
         def getVarlist(_fn=''):
             with h5py.File(_fn, 'r') as f:
                 _varlist = list(f.keys())
@@ -52,16 +60,6 @@ class abcH5(ABC):
 
         # Define the varlist
         self._varlist = getVarlist(_fn = self._fn)
-
-        # Direction
-        if '_dire' in kwargs.keys():
-            _dire = kwargs['_dire']
-            kwargs.pop('_dire')
-            if _dire not in self._varlist:
-                _dire = '{}c'.format(_dire)
-        else:
-            _dire = None
-        self._dire = _dire
 
         # Check the list and define the list
         _list = kwargs['_list'] 
