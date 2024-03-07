@@ -38,9 +38,9 @@ class hdfView(abcH5):
         if '.xdmf' not in _fn:
             _fn += '.xdmf'
 
-        _hyperx       = self._blockx[2]
-        _hypery       = self._blocky[2]
-        _hyperz       = self._blockz[2]
+        _hyperx       = int((self._blockx[2] - self._blockx[0])/self._blockx[1])
+        _hypery       = int((self._blocky[2] - self._blocky[0])/self._blocky[1])
+        _hyperz       = int((self._blockz[2] - self._blockz[0])/self._blockz[1])
 
         def _dumpItem(_moo, **kwargs):
             if 'text' in kwargs.keys():
@@ -64,7 +64,7 @@ class hdfView(abcH5):
                     {}'''.format(
                     self._blockx[0],
                     self._blockx[1],
-                    self._blockx[2]),
+                    _hyperx),
                     Dimensions='3 1',
                     Format = 'XML'
                     )
@@ -85,7 +85,7 @@ class hdfView(abcH5):
                     {}'''.format(
                     self._blocky[0],
                     self._blocky[1],
-                    self._blocky[2]),
+                    _hypery),
                     Dimensions='3 1',
                     Format = 'XML'
                     )
@@ -106,7 +106,7 @@ class hdfView(abcH5):
                     {}'''.format(
                     self._blockz[0],
                     self._blockz[1],
-                    self._blockz[2]),
+                    _hyperz),
                     Dimensions='3 1',
                     Format = 'XML'
                     )
@@ -133,7 +133,7 @@ class hdfView(abcH5):
                     {} {} {}'''.format(
                     self._blockz[0], _blocky[0], _blockx[0],
                     self._blockz[1], _blocky[1], _blockx[1],
-                    self._blockz[2], _blocky[2], _blockx[2]),
+                    _hyperz, _hypery, _hyperx),
                     Dimensions = '3 3',
                     Format = "XML")
             _dumpItem(_hyper,
