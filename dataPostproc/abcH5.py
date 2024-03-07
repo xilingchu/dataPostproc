@@ -7,12 +7,12 @@ import h5py
 class abcH5(ABC):
     def __init__(self, **kwargs):
 
+        # Direction
         if '_dire' not in kwargs.keys():
             self._dire = 'x'
-
-        # Direction
-        _dire = kwargs['_dire']
-        kwargs.pop('_dire')
+        else:
+            self._dire = kwargs['_dire']
+            kwargs.pop('_dire')
 
         def getVarlist(_fn=''):
             with h5py.File(_fn, 'r') as f:
