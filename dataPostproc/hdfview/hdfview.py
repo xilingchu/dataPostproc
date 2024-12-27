@@ -1,7 +1,5 @@
-from math import ceil
 from dataPostproc.abcH5 import abcH5
 from pathlib import Path
-from xml.dom import minidom
 from xml.etree import ElementTree as ET
 
 class hdfView(abcH5):
