@@ -1,3 +1,5 @@
+# pyright: reportInvalidTypeForm=false, reportAttributeAccessIssue=false, reportIndexIssue=false
+# The h5py.File will return Groups/Dataset/Datatype according to the file. Just ignore the diagnostics.
 from abc import ABC, abstractmethod
 from pathlib import Path
 from dataPostproc.utils.toolbox import _funlib
@@ -7,14 +9,7 @@ import h5py
 class abcH5(ABC):
     def __init__(self, **kwargs):
 
-        # Direction
-        if '_dire' not in kwargs.keys():
-            self._dire = 'x'
-        else:
-            self._dire = kwargs['_dire']
-            kwargs.pop('_dire')
-
-        def getVarlist(_fn=''):
+        def getVarlist(_fn=Path('')):
             with h5py.File(_fn, 'r') as f:
                 _varlist = list(f.keys())
                 return _varlist
@@ -29,6 +24,13 @@ class abcH5(ABC):
 
         if '_fn' not in kwargs.keys() or '_list' not in kwargs.keys():
             raise Exception('You must have _fn or _dire in this class. Please recheck the code!')
+
+        # Direction
+        if '_dire' not in kwargs.keys():
+            self._dire = 'x'
+        else:
+            self._dire = kwargs['_dire']
+            kwargs.pop('_dire')
 
         # filename
         self._fn   = Path(kwargs['_fn']).expanduser().resolve()
@@ -83,6 +85,8 @@ class abcH5(ABC):
             try:
                 self._sx   = self._file['xc'].shape[0]
                 self._varx = 'xc'
+                if self._dire == 'x':
+                    self._dire = 'xc'
             except:
                 raise Exception('The HDF5 file don\'t have array contains the data of the x direction.')
 
@@ -94,6 +98,8 @@ class abcH5(ABC):
             try:
                 self._sy = self._file['yc'].shape[0]
                 self._vary = 'yc'
+                if self._dire == 'y':
+                    self._dire = 'yc'
             except:
                 raise Exception('The HDF5 file don\'t have array contains the data of the y direction.')
 
@@ -105,6 +111,8 @@ class abcH5(ABC):
             try:
                 self._sz = self._file['zc'].shape[0]
                 self._varz = 'zc'
+                if self._dire == 'z':
+                    self._dire = 'zc'
             except:
                 raise Exception('The HDF5 file don\'t have array contains the data of the z direction.')
 
