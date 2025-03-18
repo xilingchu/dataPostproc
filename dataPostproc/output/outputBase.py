@@ -1,3 +1,6 @@
+# pyright: reportInvalidTypeForm=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false
+# The h5py.File will return Groups/Dataset/Datatype according to the file. Just ignore the diagnostics.
+
 from dataPostproc.utils import _avg, _readHDF, _exist_file
 from dataPostproc.abcH5 import abcH5
 from pathlib import Path
@@ -9,7 +12,7 @@ import math
 def sqrt_h0(var):
     try:
         var = math.sqrt(var)
-    except:
+    except(ValueError, TypeError):
         var = 0
     return var
     
@@ -53,17 +56,18 @@ class varDict(abcH5, dict):
             if len(self._blockz) != 4:
                 raise Exception('ERROR: The length of blockz should be 4!')
         kwargs.pop('_blockz')
-        
+        _blockz = self._blockz
+
         # Get the nu and tau
         self.nu   = _readHDF(_fn=self._fn, _var='nu')
         if '_uout' in kwargs.keys():
             if kwargs['_uout'] == None:
-                self.tau = self._gettau(self._fn) 
+                self.tau = self._gettau(self._fn)
             else:
-                self.tau = self._gettau(kwargs['_uout']) 
+                self.tau = self._gettau(kwargs['_uout'])
             kwargs.pop('_uout')
         else:
-            self.tau = self._gettau(self._fn) 
+            self.tau = self._gettau(self._fn)
 
         # Get the utau
         # Check zero
@@ -71,7 +75,6 @@ class varDict(abcH5, dict):
         for i in range(len(self.tau)):
             self.utau[i] = sqrt_h0(self.tau[i])
         
-
         if self._dire is None:
             raise Exception('ERROR: In this class we should include _dire.')
 
@@ -106,9 +109,12 @@ class varDict(abcH5, dict):
                 fun_var = getattr(self._funlib, _var)
                 kwargs[_var] = fun_var(*args)
 
-
-
         kwargs[self._dire] = _readHDF(_fn=self._fn, _var=self._dire, _blockz=_block, _blocky=None, _blockx=None)
+        # If consider dz, this funtion is used to calculate intergal, so it's better to set block and stride = 1.
+        # Zd is must
+        kwargs[self._zd] = _readHDF(_fn=self._fn, _var=self._dire[0]+'d',
+                                       _blockz=[2*_blockz[0], 2*_blockz[1], _blockz[2], 2*_block[3]],
+                                       _blocky=None, _blockx=None)
 
         super(abcH5, self).__init__(**kwargs)
 
@@ -145,20 +151,15 @@ class varDict(abcH5, dict):
         # Rule 2. The shorter length of the variable.
         # Rule 3. balance is the last variable
         def cmp_zmax(v1, v2):
+            if v1 == 'balance':
+                return 1
+            if v2 == 'balance':
+                return -1
+            if v1[0] in ['x', 'y', 'z'] and v2[0] not in ['x', 'y', 'z']:
+                return -1
             if v2[0] in ['x', 'y', 'z'] and v1[0] not in ['x', 'y', 'z']:
                 return 1
-            elif v2[0] not in ['x', 'y', 'z'] and v1[0] in ['x', 'y', 'z']: 
-                return -1
-            elif v1 == 'balance':
-                return 1
-            elif v2 == 'balance':
-                return -1
-            else:
-                if len(v2) < len(v1):
-                    return 1
-                elif len(v2) > len(v1):
-                    return -1
-            return (v1 > v2) - (v1 < v2)
+            return len(v1) - len(v2)
             
         _filename = _fn
         if '.dat' not in _filename:
@@ -192,4 +193,3 @@ class varDict(abcH5, dict):
                         f.write('{:14.6e}'.format(self[_item][i]))
                 f.write('\n')
             print('File generated complete')
-            f.close()
