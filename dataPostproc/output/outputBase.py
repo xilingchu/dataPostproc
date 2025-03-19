@@ -15,6 +15,9 @@ def sqrt_h0(var):
     except(ValueError, TypeError):
         var = 0
     return var
+
+class dimensionError(Exception):
+    pass
     
 #----- Basic Class -----#
 # For build a var dictionary.
@@ -40,21 +43,21 @@ class varDict(abcH5, dict):
             self._blockx = [0, 1, self._sx, 1]
         else:
             if len(self._blockx) != 4:
-                raise Exception('ERROR: The length of blockx should be 4!')
+                raise dimensionError('ERROR: The length of blockx should be 4!')
         kwargs.pop('_blockx')
 
         if self._blocky is None:
             self._blocky = [0, 1, self._sy, 1]
         else:
             if len(self._blocky) != 4:
-                raise Exception('ERROR: The length of block_y should be 4!')
+                raise dimensionError('ERROR: The length of block_y should be 4!')
         kwargs.pop('_blocky')
 
         if self._blockz is None:
             self._blockz = [0, 1, self._sz, 1]
         else:
             if len(self._blockz) != 4:
-                raise Exception('ERROR: The length of blockz should be 4!')
+                raise dimensionError('ERROR: The length of blockz should be 4!')
         kwargs.pop('_blockz')
         _blockz = self._blockz
 
@@ -78,7 +81,7 @@ class varDict(abcH5, dict):
         if self._dire is None:
             raise Exception('ERROR: In this class we should include _dire.')
 
-        _block = getattr(self, '_block{}'.format(self._dire[0]))
+        _block = getattr(self, f'_block{self._dire[0]}')
 
         # Make the class to an array
         for _var in self._list:
@@ -118,12 +121,6 @@ class varDict(abcH5, dict):
 
         super(abcH5, self).__init__(**kwargs)
 
-    # def __getattr__(self, key):
-    #     try:
-    #         return self[key]
-    #     except KeyError:
-    #         raise AttributeError('The key {} doesn\'t exist in {}'.format(key, self.__class__.__name__))
-
     def _gettau(self, _fn=None):
         if _fn is None:
             _fn = self._fn
@@ -140,7 +137,7 @@ class varDict(abcH5, dict):
             u    = _readHDF(_fn=_fn, _var='u' , _blockz=[1, 1, 1 ,1], _blocky=_blocky, _blockx=_blockx)
             z1   = _readHDF(_fn=_fn, _var='zc', _blockz=[1, 1, 1 ,1])
         except:
-            raise FileExistsError('The variable u does not exist in the {}.'.format(_fn))
+            raise FileExistsError(f'The variable u does not exist in the {_fn}.')
         u1   = _avg.nor_all(u, self._dire[0])
         tau  = self.nu*u1/z1
         return np.array(tau)
@@ -177,19 +174,19 @@ class varDict(abcH5, dict):
         _head_str1 += '\n'
         _head_str2 += '\n'
         if type(self.utau) == type(1.0):
-            _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau/self.nu))+'\n'
+            _title_head = f'{"Statistics of the data along with "+self._dire[0]+", Ret="+str(self.utau/self.nu):40s}\n'
         else:
-            _title_head = '{:40s}'.format('Statistics of the data along with {}, Ret={}'.format(self._dire[0], self.utau[0]/self.nu))+'\n'
+            _title_head = f'{"Statistics of the data along with "+self._dire[0]+", Ret="+str(self.utau[0]/self.nu):40s}\n'
         _spl_head = 80*'-'+'\n'
         with open(_filename, 'w') as f:
             f.write(_title_head+_head_str1+_head_str2+_spl_head*2)
             for i in range(_len):
                 for _item in _list:
                     if _item in ['rethe', 'redel', 'rex', 'retau', 'redeldi', 'redelen']:
-                        f.write('{:14.2e}'.format(self[_item][i]))
+                        f.write(f'{self[_item][i]:14.2e}')
                     elif _item in ['zc', 'zplus']:
-                        f.write('{:14.6f}'.format(self[_item][i]))
+                        f.write(f'{self[_item][i]:14.6f}')
                     else:
-                        f.write('{:14.6e}'.format(self[_item][i]))
+                        f.write(f'{self[_item][i]:14.6e}')
                 f.write('\n')
             print('File generated complete')
